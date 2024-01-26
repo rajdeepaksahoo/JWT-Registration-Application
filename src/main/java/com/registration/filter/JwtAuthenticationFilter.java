@@ -1,5 +1,6 @@
 package com.registration.filter;
 
+import com.registration.exception.TokenExpiredException;
 import com.registration.jwt.JwtHelper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -47,7 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             //looking good
             token = requestHeader.substring(7);
             try {
-
+                boolean tokenExpired = jwtHelper.isTokenExpired(token);
+                if(tokenExpired){
+                    throw new TokenExpiredException("");
+                }
                 username = this.jwtHelper.getNameFromToken(token);
 
             } catch (IllegalArgumentException e) {
@@ -55,7 +59,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 e.printStackTrace();
             } catch (ExpiredJwtException e) {
                 logger.info("Given jwt token is expired !!");
-                e.printStackTrace();
+                throw new TokenExpiredException("Given jwt token is expired !!");
+
             } catch (MalformedJwtException e) {
                 logger.info("Some changed has done in token !! Invalid Token");
                 e.printStackTrace();

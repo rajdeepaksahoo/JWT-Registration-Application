@@ -1,11 +1,14 @@
 package com.registration.service.impl;
 
 import com.registration.dto.LoginDto;
+import com.registration.exception.JwtAuthenticationException;
+import com.registration.jwt.JwtAuthenticationEntryPoint;
 import com.registration.jwt.JwtHelper;
 import com.registration.model.RegisterModel;
 import com.registration.repository.RegistrationPageRepository;
 import com.registration.service.RegistrationService;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,12 +22,17 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final JwtHelper jwtHelper;
     private final PasswordEncoder passwordEncoder;
     private final RegistrationPageRepository repository;
-    public String getToken(LoginDto loginDto){
-        UserDetails userDetails = User.builder()
-                .username(loginDto.getUsername())
-                .password(loginDto.getPassword())
-                .build();
-        return jwtHelper.generateToken(userDetails);
+    public String getToken(LoginDto loginDto) throws JwtAuthenticationException {
+        if(repository.findByEmail(loginDto.getUsername()).isPresent()){
+            UserDetails userDetails = User.builder()
+                    .username(loginDto.getUsername())
+                    .password(loginDto.getPassword())
+                    .build();
+            return jwtHelper.generateToken(userDetails);
+        }
+        else {
+            throw new JwtAuthenticationException();
+        }
     }
 
     @Override
