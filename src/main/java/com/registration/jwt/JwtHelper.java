@@ -1,6 +1,7 @@
 package com.registration.jwt;
 
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +11,7 @@ import io.jsonwebtoken.Jwts;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -34,6 +36,7 @@ public class JwtHelper {
     }
     public String generateToken(UserDetails userDetails){
         Map<String,Object> claims =new HashMap<>();
+        claims.put("roles",userDetails.getAuthorities());
         return doGenerateToken(claims,userDetails.getUsername());
     }
 
@@ -54,7 +57,16 @@ public class JwtHelper {
     final String username = getNameFromToken (token);
           return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
      }
-
+    public boolean validateToken(String token){
+        Claims body = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET.getBytes())) // Set the signing key
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        String roles = (String) body.get("roles");
+        System.out.println(roles);
+        return isTokenExpired(token);
+    }
 }
 //@Component
 //public class JwtHelper {

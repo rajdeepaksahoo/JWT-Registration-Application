@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-db
+    environment :
+      MYSQL_ROOT_PASSWORD: razdeepak
+      MYSQL_DATABASE: sbdocker
+    networks:
+      - user-mysql
+    restart: always
+  sb-app:
+    image: razdeepak/jwt-registration:latest
+    container_name: jwt-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://sbdocker:3306/sbdocker
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: razdeepak
+    depends_on:
+      - mysql
+    networks:
+      - user-mysql
+    restart: always
+networks:
+  user-mysql:
+    driver: bridge

@@ -44,8 +44,10 @@ public class MyController {
         return new ResponseEntity<>(tokenDto, HttpStatus.OK);
     }
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterModel registerModel){
-        return new ResponseEntity<>(registrationService.register(registerModel), HttpStatus.OK);
+    public ResponseEntity<Map<String,String>> register(@RequestBody RegisterModel registerModel){
+        Map<String,String> response = new HashMap<>();
+        response.put("ststus",registrationService.register(registerModel));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }
